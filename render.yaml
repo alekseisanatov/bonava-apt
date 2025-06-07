@@ -3,7 +3,11 @@ services:
     name: telegram-apartment-bot
     env: node
     buildCommand: npm ci
-    startCommand: node src/index.js
+    startCommand: npm run start
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+    disk:
+      name: npm-cache
+      mountPath: /opt/render/.npm
+      sizeGB: 1
