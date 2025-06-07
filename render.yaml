@@ -15,6 +15,7 @@ services:
       which google-chrome-stable
       google-chrome-stable --version
 
+      export NODE_VERSION=20
       npm ci
     startCommand: node src/index.js
     envVars:
@@ -23,7 +24,7 @@ services:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: CHROME_BIN
-        value: /opt/chrome/google-chrome-stable
+        value: /usr/bin/google-chrome-stable
       - key: RENDER_EXTERNAL_URL
         fromService:
           type: web

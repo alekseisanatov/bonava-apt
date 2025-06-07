@@ -22,17 +22,8 @@ async function findChromePath() {
     PATH: process.env.PATH
   });
 
-  // Debug: List contents of /opt/chrome
-  try {
-    console.log('Contents of /opt/chrome:');
-    console.log(execSync('ls -la /opt/chrome').toString());
-  } catch (error) {
-    console.log('Error listing /opt/chrome:', error.message);
-  }
-
   const possiblePaths = [
     process.env.CHROME_BIN,
-    '/opt/chrome/google-chrome-stable',
     '/usr/bin/google-chrome-stable',
     '/usr/bin/google-chrome',
     '/usr/bin/chromium-browser',
