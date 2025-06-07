@@ -34,26 +34,25 @@ exports.scrapeBonavaApartments = async function () {
   }
 
   try {
-    console.log('Launching browser with args:', [
+    const launchArgs = [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-accelerated-2d-canvas',
       '--disable-gpu',
-      '--window-size=1920x1080'
-    ]);
+      '--window-size=1920x1080',
+      '--disable-web-security',
+      '--disable-features=IsolateOrigins,site-per-process',
+      '--disable-site-isolation-trials'
+    ];
+
+    console.log('Launching browser with args:', launchArgs);
 
     const browser = await puppeteer.launch({
       executablePath: chromePath,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--window-size=1920x1080'
-      ],
-      headless: new
+      args: launchArgs,
+      headless: 'new',
+      ignoreHTTPSErrors: true
     });
     console.log('Browser launched successfully');
 
