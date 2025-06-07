@@ -20,7 +20,28 @@ app.listen(port, () => {
 });
 
 // Initialize bot with your token
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
+  polling: {
+    interval: 300,
+    autoStart: true,
+    params: {
+      timeout: 10
+    }
+  }
+});
+
+// Handle polling errors
+bot.on('polling_error', (error) => {
+  console.error('Polling error:', error);
+  // If it's a conflict error, stop polling and restart after a delay
+  if (error.message.includes('409 Conflict')) {
+    console.log('Conflict detected, restarting polling...');
+    bot.stopPolling();
+    setTimeout(() => {
+      bot.startPolling();
+    }, 5000);
+  }
+});
 
 // Initialize database
 initDatabase().catch(console.error);
@@ -250,10 +271,5 @@ ${tagIcon} Тег: ${apartment.tag}
     });
   }
 }
-
-// Error handling
-bot.on('polling_error', (error) => {
-  console.error('Polling error:', error);
-});
 
 console.log('Bot is running...'); 
