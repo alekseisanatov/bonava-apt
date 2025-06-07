@@ -22,27 +22,17 @@ async function findChromePath() {
     PATH: process.env.PATH
   });
 
-  // Debug: List all Chrome-related files
+  // Debug: List contents of /opt/chrome
   try {
-    console.log('Searching for Chrome files:');
-    console.log(execSync('find /usr/bin -name "*chrome*" -o -name "*chromium*"').toString());
+    console.log('Contents of /opt/chrome:');
+    console.log(execSync('ls -la /opt/chrome').toString());
   } catch (error) {
-    console.log('Error searching for Chrome files:', error.message);
-  }
-
-  // Try to find Chrome using which command
-  try {
-    const chromePath = execSync('which google-chrome-stable').toString().trim();
-    console.log('Found Chrome using which:', chromePath);
-    if (fs.existsSync(chromePath)) {
-      return chromePath;
-    }
-  } catch (error) {
-    console.log('which google-chrome-stable command failed:', error.message);
+    console.log('Error listing /opt/chrome:', error.message);
   }
 
   const possiblePaths = [
     process.env.CHROME_BIN,
+    '/opt/chrome/google-chrome-stable',
     '/usr/bin/google-chrome-stable',
     '/usr/bin/google-chrome',
     '/usr/bin/chromium-browser',
@@ -60,12 +50,12 @@ async function findChromePath() {
     }
   }
 
-  // List contents of /usr/bin to help debug
+  // List contents of /opt to help debug
   try {
-    console.log('Contents of /usr/bin:');
-    console.log(execSync('ls -la /usr/bin').toString());
+    console.log('Contents of /opt:');
+    console.log(execSync('ls -la /opt').toString());
   } catch (error) {
-    console.log('Error listing /usr/bin:', error.message);
+    console.log('Error listing /opt:', error.message);
   }
 
   throw new Error('Chrome not found in any of the expected locations');
