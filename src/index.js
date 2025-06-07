@@ -263,7 +263,9 @@ app.listen(port, async () => {
   if (renderUrl) {
     // Remove any trailing slashes and ensure proper URL format
     const cleanUrl = renderUrl.replace(/\/$/, '');
-    const webhookUrl = `https://${cleanUrl}/webhook`;
+    // Remove https:// if it exists in the URL
+    const baseUrl = cleanUrl.replace(/^https?:\/\//, '');
+    const webhookUrl = `https://${baseUrl}/webhook`;
     console.log('Attempting to set webhook URL:', webhookUrl);
 
     try {
