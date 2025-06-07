@@ -2,14 +2,7 @@ services:
   - type: web
     name: telegram-bot
     env: node
-    buildCommand: |
-      apt-get update && apt-get install -y wget gnupg
-      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
-      apt-get update && apt-get install -y google-chrome-stable
-      export NODE_VERSION=16
-      export CHROME_BIN=/usr/bin/google-chrome
-      npm ci
+    buildCommand: npm ci
     startCommand: node src/index.js
     envVars:
       - key: NODE_ENV
