@@ -53,7 +53,7 @@ exports.scrapeBonavaApartments = async function () {
         '--disable-gpu',
         '--window-size=1920x1080'
       ],
-      headless: true
+      headless: new
     });
     console.log('Browser launched successfully');
 
