@@ -15,25 +15,31 @@ exports.ApartmentData = {
   projectLink: String
 };
 
-exports.scrapeBonavaApartments = async function () {
-  console.log('Starting browser launch...');
-  const chromePath = process.env.CHROME_BIN || '/opt/chrome/google-chrome';
-  console.log('Chrome path:', chromePath);
+async function findChromePath() {
+  const possiblePaths = [
+    process.env.CHROME_BIN,
+    '/opt/chrome/google-chrome',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable'
+  ];
 
-  // Check if Chrome exists
-  try {
-    if (fs.existsSync(chromePath)) {
-      console.log('Chrome binary found at:', chromePath);
-    } else {
-      console.error('Chrome binary not found at:', chromePath);
-      throw new Error(`Chrome binary not found at ${chromePath}`);
+  for (const path of possiblePaths) {
+    if (path && fs.existsSync(path)) {
+      console.log('Found Chrome at:', path);
+      return path;
     }
-  } catch (error) {
-    console.error('Error checking Chrome binary:', error);
-    throw error;
   }
 
+  throw new Error('Chrome not found in any of the expected locations');
+}
+
+exports.scrapeBonavaApartments = async function () {
+  console.log('Starting browser launch...');
+
   try {
+    const chromePath = await findChromePath();
+    console.log('Using Chrome path:', chromePath);
+
     const launchArgs = [
       '--no-sandbox',
       '--disable-setuid-sandbox',

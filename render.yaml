@@ -15,6 +15,10 @@ services:
       apt-get update
       apt-get install -y google-chrome-stable
 
+      # Verify Chrome installation and location
+      which google-chrome
+      ls -l /usr/bin/google-chrome
+
       # Create directory for Chrome
       mkdir -p /opt/chrome
 
@@ -22,7 +26,8 @@ services:
       cp /usr/bin/google-chrome /opt/chrome/
       chmod +x /opt/chrome/google-chrome
 
-      # Verify Chrome installation
+      # Verify Chrome in new location
+      ls -l /opt/chrome/google-chrome
       /opt/chrome/google-chrome --version
 
       # Set up Node.js and install dependencies
