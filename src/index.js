@@ -257,11 +257,22 @@ app.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
 
   // Set webhook
-  const webhookUrl = `https://${process.env.RENDER_EXTERNAL_URL}/webhook`;
-  try {
-    await bot.setWebHook(webhookUrl);
-    console.log('Webhook set successfully');
-  } catch (error) {
-    console.error('Error setting webhook:', error);
+  const webhookUrl = process.env.RENDER_EXTERNAL_URL
+    ? `https://${process.env.RENDER_EXTERNAL_URL}/webhook`
+    : null;
+
+  if (webhookUrl) {
+    try {
+      await bot.setWebHook(webhookUrl);
+      console.log('Webhook set successfully:', webhookUrl);
+    } catch (error) {
+      console.error('Error setting webhook:', error);
+      // Fallback to polling if webhook fails
+      console.log('Falling back to polling...');
+      bot.startPolling();
+    }
+  } else {
+    console.log('No webhook URL available, using polling...');
+    bot.startPolling();
   }
 }); 

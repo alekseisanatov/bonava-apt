@@ -28,7 +28,6 @@ exports.scrapeBonavaApartments = async function () {
 
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
     await page.goto("https://www.bonava.lv/dzivokli", {
       waitUntil: "networkidle0",
     });

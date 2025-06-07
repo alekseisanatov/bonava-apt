@@ -9,8 +9,6 @@ services:
         value: production
       - key: TELEGRAM_BOT_TOKEN
         sync: false
-      - key: CHROME_BIN
-        value: /usr/bin/google-chrome
       - key: RENDER_EXTERNAL_URL
         fromService:
           type: web
