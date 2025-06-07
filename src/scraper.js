@@ -22,23 +22,23 @@ async function findChromePath() {
     PATH: process.env.PATH
   });
 
-  // Try to find chromium using which command
+  // Try to find Chrome using which command
   try {
-    const chromiumPath = execSync('which chromium-browser').toString().trim();
-    console.log('Found chromium using which:', chromiumPath);
-    if (fs.existsSync(chromiumPath)) {
-      return chromiumPath;
+    const chromePath = execSync('which google-chrome-stable').toString().trim();
+    console.log('Found Chrome using which:', chromePath);
+    if (fs.existsSync(chromePath)) {
+      return chromePath;
     }
   } catch (error) {
-    console.log('which chromium-browser command failed:', error.message);
+    console.log('which google-chrome-stable command failed:', error.message);
   }
 
   const possiblePaths = [
     process.env.CHROME_BIN,
-    '/usr/bin/chromium-browser',
-    '/usr/bin/chromium',
+    '/usr/bin/google-chrome-stable',
     '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable'
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium'
   ];
 
   console.log('Checking possible paths:', possiblePaths);
@@ -55,12 +55,12 @@ async function findChromePath() {
   // List contents of /usr/bin to help debug
   try {
     console.log('Contents of /usr/bin:');
-    console.log(execSync('ls -l /usr/bin | grep -i "chromium\\|chrome"').toString());
+    console.log(execSync('ls -l /usr/bin | grep -i "chrome\\|chromium"').toString());
   } catch (error) {
     console.log('Error listing /usr/bin:', error.message);
   }
 
-  throw new Error('Chrome/Chromium not found in any of the expected locations');
+  throw new Error('Chrome not found in any of the expected locations');
 }
 
 exports.scrapeBonavaApartments = async function () {
