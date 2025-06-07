@@ -2,7 +2,7 @@ services:
   - type: web
     name: telegram-apartment-bot
     env: node
-    buildCommand: npm install
+    buildCommand: npm ci
     startCommand: node src/index.js
     envVars:
       - key: TELEGRAM_BOT_TOKEN
