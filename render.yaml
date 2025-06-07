@@ -3,26 +3,18 @@ services:
     name: telegram-bot
     env: node
     buildCommand: |
-      # Create custom directory for Chrome
-      mkdir -p /opt/chrome
-      cd /opt/chrome
+      apt-get update && apt-get install -y wget gnupg
 
-      # Download Chrome directly
-      wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-      echo "downloaded chrome"
+      # Добавляем репозиторий Google Chrome
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
 
-      # Install dependencies
-      apt-get update
-      apt-get install -y ./google-chrome-stable_current_amd64.deb
-      echo "installed chrome"
+      apt-get update && apt-get install -y google-chrome-stable
 
-      # Verify installation
-      echo "Chrome version:"
-      /opt/chrome/google-chrome-stable --version
+      # Проверяем установку
+      which google-chrome-stable
+      google-chrome-stable --version
 
-      # Set up Node.js and install dependencies
-      export NODE_VERSION=16
-      export CHROME_BIN=/opt/chrome/google-chrome-stable
       npm ci
     startCommand: node src/index.js
     envVars:
