@@ -5,14 +5,14 @@ services:
     buildCommand: |
       # Install Chromium and verify
       apt-get update
-      apt-get install -y chromium
-      which chromium
-      ls -l /usr/bin/chromium
-      chromium --version
+      apt-get install -y chromium-browser
+      which chromium-browser
+      ls -l /usr/bin/chromium-browser
+      chromium-browser --version
 
       # Set up Node.js and install dependencies
       export NODE_VERSION=16
-      export CHROME_BIN=/usr/bin/chromium
+      export CHROME_BIN=/usr/bin/chromium-browser
       npm ci
     startCommand: node src/index.js
     envVars:
@@ -21,7 +21,7 @@ services:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: CHROME_BIN
-        value: /usr/bin/chromium
+        value: /usr/bin/chromium-browser
       - key: RENDER_EXTERNAL_URL
         fromService:
           type: web

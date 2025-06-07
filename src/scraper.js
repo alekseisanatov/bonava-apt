@@ -24,19 +24,19 @@ async function findChromePath() {
 
   // Try to find chromium using which command
   try {
-    const chromiumPath = execSync('which chromium').toString().trim();
+    const chromiumPath = execSync('which chromium-browser').toString().trim();
     console.log('Found chromium using which:', chromiumPath);
     if (fs.existsSync(chromiumPath)) {
       return chromiumPath;
     }
   } catch (error) {
-    console.log('which chromium command failed:', error.message);
+    console.log('which chromium-browser command failed:', error.message);
   }
 
   const possiblePaths = [
     process.env.CHROME_BIN,
-    '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
     '/usr/bin/google-chrome',
     '/usr/bin/google-chrome-stable'
   ];
@@ -55,7 +55,7 @@ async function findChromePath() {
   // List contents of /usr/bin to help debug
   try {
     console.log('Contents of /usr/bin:');
-    console.log(execSync('ls -l /usr/bin | grep -i chrome').toString());
+    console.log(execSync('ls -l /usr/bin | grep -i "chromium\\|chrome"').toString());
   } catch (error) {
     console.log('Error listing /usr/bin:', error.message);
   }
