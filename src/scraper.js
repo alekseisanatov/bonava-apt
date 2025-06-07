@@ -35,7 +35,7 @@ exports.scrapeBonavaApartments = async function () {
     console.log('Launching browser with args:', launchArgs);
 
     const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/google-chrome-stable',
+      executablePath: '/usr/bin/chromium-browser',
       args: launchArgs,
       headless: 'new',
       ignoreHTTPSErrors: true
