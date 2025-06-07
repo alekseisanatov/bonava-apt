@@ -2,10 +2,14 @@ services:
   - type: web
     name: telegram-apartment-bot
     env: node
-    buildCommand: npm install
+    buildCommand: |
+      export NODE_VERSION=16
+      npm install
     startCommand: npm start
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      - key: NODE_ENV
+        value: production
     healthCheckPath: /
     autoDeploy: true
