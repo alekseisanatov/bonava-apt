@@ -15,30 +15,10 @@ exports.ApartmentData = {
   projectLink: String
 };
 
-async function findChromePath() {
-  const possiblePaths = [
-    process.env.CHROME_BIN,
-    '/opt/chrome/google-chrome',
-    '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable'
-  ];
-
-  for (const path of possiblePaths) {
-    if (path && fs.existsSync(path)) {
-      console.log('Found Chrome at:', path);
-      return path;
-    }
-  }
-
-  throw new Error('Chrome not found in any of the expected locations');
-}
-
 exports.scrapeBonavaApartments = async function () {
   console.log('Starting browser launch...');
 
   try {
-    const chromePath = await findChromePath();
-    console.log('Using Chrome path:', chromePath);
 
     const launchArgs = [
       '--no-sandbox',
