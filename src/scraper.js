@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer-core');
+const fs = require('fs');
 
 exports.ApartmentData = {
   price: Number,
@@ -16,11 +17,34 @@ exports.ApartmentData = {
 
 exports.scrapeBonavaApartments = async function () {
   console.log('Starting browser launch...');
-  console.log('Chrome path:', process.env.CHROME_BIN || '/usr/bin/google-chrome');
+  const chromePath = process.env.CHROME_BIN || '/opt/chrome/google-chrome';
+  console.log('Chrome path:', chromePath);
+
+  // Check if Chrome exists
+  try {
+    if (fs.existsSync(chromePath)) {
+      console.log('Chrome binary found at:', chromePath);
+    } else {
+      console.error('Chrome binary not found at:', chromePath);
+      throw new Error(`Chrome binary not found at ${chromePath}`);
+    }
+  } catch (error) {
+    console.error('Error checking Chrome binary:', error);
+    throw error;
+  }
 
   try {
+    console.log('Launching browser with args:', [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu',
+      '--window-size=1920x1080'
+    ]);
+
     const browser = await puppeteer.launch({
-      executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
+      executablePath: chromePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
