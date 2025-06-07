@@ -22,6 +22,14 @@ async function findChromePath() {
     PATH: process.env.PATH
   });
 
+  // Debug: List all Chrome-related files
+  try {
+    console.log('Searching for Chrome files:');
+    console.log(execSync('find /usr/bin -name "*chrome*" -o -name "*chromium*"').toString());
+  } catch (error) {
+    console.log('Error searching for Chrome files:', error.message);
+  }
+
   // Try to find Chrome using which command
   try {
     const chromePath = execSync('which google-chrome-stable').toString().trim();
@@ -55,7 +63,7 @@ async function findChromePath() {
   // List contents of /usr/bin to help debug
   try {
     console.log('Contents of /usr/bin:');
-    console.log(execSync('ls -l /usr/bin | grep -i "chrome\\|chromium"').toString());
+    console.log(execSync('ls -la /usr/bin').toString());
   } catch (error) {
     console.log('Error listing /usr/bin:', error.message);
   }
