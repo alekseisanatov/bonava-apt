@@ -4,11 +4,13 @@
   "description": "Telegram bot for apartment listings",
   "main": "src/index.js",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "postinstall": "echo 'Build completed'"
   },
   "dependencies": {
     "node-telegram-bot-api": "^0.64.0",
