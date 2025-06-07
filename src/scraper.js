@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer-core');
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 exports.ApartmentData = {
   price: Number,
@@ -15,10 +16,59 @@ exports.ApartmentData = {
   projectLink: String
 };
 
+async function findChromePath() {
+  console.log('Environment variables:', {
+    CHROME_BIN: process.env.CHROME_BIN,
+    PATH: process.env.PATH
+  });
+
+  // Try to find chromium using which command
+  try {
+    const chromiumPath = execSync('which chromium').toString().trim();
+    console.log('Found chromium using which:', chromiumPath);
+    if (fs.existsSync(chromiumPath)) {
+      return chromiumPath;
+    }
+  } catch (error) {
+    console.log('which chromium command failed:', error.message);
+  }
+
+  const possiblePaths = [
+    process.env.CHROME_BIN,
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable'
+  ];
+
+  console.log('Checking possible paths:', possiblePaths);
+
+  for (const path of possiblePaths) {
+    if (path && fs.existsSync(path)) {
+      console.log('Found browser at:', path);
+      return path;
+    } else if (path) {
+      console.log('Path does not exist:', path);
+    }
+  }
+
+  // List contents of /usr/bin to help debug
+  try {
+    console.log('Contents of /usr/bin:');
+    console.log(execSync('ls -l /usr/bin | grep -i chrome').toString());
+  } catch (error) {
+    console.log('Error listing /usr/bin:', error.message);
+  }
+
+  throw new Error('Chrome/Chromium not found in any of the expected locations');
+}
+
 exports.scrapeBonavaApartments = async function () {
   console.log('Starting browser launch...');
 
   try {
+    const chromePath = await findChromePath();
+    console.log('Using browser path:', chromePath);
 
     const launchArgs = [
       '--no-sandbox',
@@ -35,7 +85,7 @@ exports.scrapeBonavaApartments = async function () {
     console.log('Launching browser with args:', launchArgs);
 
     const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium',
+      executablePath: chromePath,
       args: launchArgs,
       headless: 'new',
       ignoreHTTPSErrors: true
