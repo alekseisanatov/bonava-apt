@@ -17,5 +17,10 @@ services:
         value: production
       - key: CHROME_BIN
         value: /usr/bin/google-chrome
+      - key: RENDER_EXTERNAL_URL
+        fromService:
+          type: web
+          name: telegram-apartment-bot
+          envVarKey: RENDER_EXTERNAL_URL
     healthCheckPath: /
     autoDeploy: true

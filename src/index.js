@@ -9,39 +9,8 @@ const { initDatabase, saveApartments, getApartmentsByRooms } = require('./databa
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.send('Bot is running!');
-});
-
-// Start express server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
 // Initialize bot with your token
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
-  polling: {
-    interval: 300,
-    autoStart: true,
-    params: {
-      timeout: 10
-    }
-  }
-});
-
-// Handle polling errors
-bot.on('polling_error', (error) => {
-  console.error('Polling error:', error);
-  // If it's a conflict error, stop polling and restart after a delay
-  if (error.message.includes('409 Conflict')) {
-    console.log('Conflict detected, restarting polling...');
-    bot.stopPolling();
-    setTimeout(() => {
-      bot.startPolling();
-    }, 5000);
-  }
-});
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
 
 // Initialize database
 initDatabase().catch(console.error);
@@ -272,4 +241,27 @@ ${tagIcon} Тег: ${apartment.tag}
   }
 }
 
-console.log('Bot is running...'); 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.send('Bot is running!');
+});
+
+// Webhook endpoint
+app.post('/webhook', express.json(), (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// Start the server
+app.listen(port, async () => {
+  console.log(`Server is running on port ${port}`);
+
+  // Set webhook
+  const webhookUrl = `https://${process.env.RENDER_EXTERNAL_URL}/webhook`;
+  try {
+    await bot.setWebHook(webhookUrl);
+    console.log('Webhook set successfully');
+  } catch (error) {
+    console.error('Error setting webhook:', error);
+  }
+}); 
