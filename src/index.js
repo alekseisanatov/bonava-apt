@@ -304,10 +304,15 @@ async function performSync() {
   }
 }
 
-// Schedule sync every 5 minutes
-cron.schedule('*/5 * * * *', () => {
+// Set up cron job for daily sync
+cron.schedule('0 0 * * *', async () => {
   console.log('Running scheduled sync...');
-  performSync();
+  try {
+    await performSync();
+    console.log('Scheduled sync completed successfully');
+  } catch (error) {
+    console.error('Error in scheduled sync:', error);
+  }
 });
 
 // Add getProjects function
