@@ -52,8 +52,7 @@ async function scrapeBonavaApartments() {
     // Navigate to the page
     console.log('Navigating to page...');
     await page.goto('https://www.bonava.lv/dzivokli', {
-      waitUntil: 'networkidle0',
-      timeout: 30000
+      waitUntil: 'networkidle0'
     });
     console.log('Page loaded');
 
