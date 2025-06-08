@@ -238,12 +238,38 @@ bot.on('callback_query', async (callbackQuery) => {
   }
 });
 
-// Keep the /sync command for manual syncs
+// Add sync command handler
 bot.onText(/\/sync/, async (msg) => {
+  console.log('Received /sync command from user:', msg.chat.id);
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Starting manual sync...');
-  await performSync();
-  bot.sendMessage(chatId, 'Sync completed!');
+
+  try {
+    await bot.sendMessage(chatId, '🔄 Starting sync process...');
+    console.log('Starting sync process...');
+
+    const apartments = await scrapeBonavaApartments();
+    console.log(`Scraped ${apartments.length} apartments`);
+
+    if (apartments.length === 0) {
+      await bot.sendMessage(chatId, '❌ No apartments found during sync');
+      return;
+    }
+
+    await bot.sendMessage(chatId, `Found ${apartments.length} apartments. Saving to database...`);
+    console.log('Attempting to save apartments...');
+
+    try {
+      await db.saveApartments(apartments);
+      console.log('Apartments saved successfully');
+      await bot.sendMessage(chatId, '✅ Sync completed successfully!');
+    } catch (error) {
+      console.error('Error saving apartments:', error);
+      await bot.sendMessage(chatId, '❌ Error saving apartments to database');
+    }
+  } catch (error) {
+    console.error('Error during sync:', error);
+    await bot.sendMessage(chatId, '❌ Error during sync process');
+  }
 });
 
 // Function to perform sync
@@ -256,7 +282,7 @@ async function performSync() {
     if (apartments.length > 0) {
       console.log('Sample apartment data:', JSON.stringify(apartments[0], null, 2));
       try {
-        await saveApartments(apartments);
+        await db.saveApartments(apartments);
         console.log('Apartments saved to database');
 
         // Verify the save by checking the database
