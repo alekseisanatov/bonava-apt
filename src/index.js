@@ -28,7 +28,7 @@ const port = process.env.PORT || 8080;
 // Initialize bot with webhook mode
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
   webHook: {
-    port: process.env.PORT || 8080
+    port: port
   }
 });
 
