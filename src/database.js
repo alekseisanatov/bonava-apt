@@ -197,11 +197,10 @@ class Database {
           reject(err);
         } else {
           console.log(`Successfully saved ${savedCount} apartments, ${errorCount} errors`);
-          resolve();
         }
       });
     } catch (error) {
-      reject(error);
+      console.error(error);
     }
   }
 
