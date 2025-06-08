@@ -149,39 +149,33 @@ class Database {
       // Clear existing data
       await this.run('DELETE FROM apartments');
 
-      const stmt = this.db.prepare(`
-        INSERT INTO apartments (
-          title, location, price, area, rooms, floor, url, projectName
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-
       let savedCount = 0;
       let errorCount = 0;
 
+      const stmt = this.db.prepare(`
+        INSERT INTO apartments (
+          price, sqMeters, plan, projectName, roomsCount,
+          imageUrl, floor, link, status, tag, projectLink
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
       apartments.forEach(apartment => {
-        try {
-          stmt.run(
-            apartment.title,
-            apartment.location,
-            apartment.price,
-            apartment.area,
-            apartment.rooms,
-            apartment.floor,
-            apartment.url,
-            apartment.projectName,
-            (err) => {
-              if (err) {
-                console.error('Error saving apartment:', err);
-                errorCount++;
-              } else {
-                savedCount++;
-              }
-            }
-          );
-        } catch (error) {
-          console.error('Error preparing apartment data:', error);
-          errorCount++;
-        }
+        stmt.run(
+          apartment.price,
+          apartment.sqMeters,
+          apartment.plan,
+          apartment.projectName,
+          apartment.roomsCount,
+          apartment.imageUrl,
+          apartment.floor,
+          apartment.link,
+          apartment.status,
+          apartment.tag,
+          apartment.projectLink,
+          (err) => {
+            if (err) console.error('Error saving apartment:', err);
+          }
+        );
       });
 
       stmt.finalize((err) => {
