@@ -5,8 +5,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const dotenv = require('dotenv');
 const { scrapeBonavaApartments } = require('./scraper');
-const { initDatabase, saveApartments, getApartmentsByRooms } = require('./database');
-const { Database } = require('sqlite3');
+const Database = require('./database');
 
 // Load environment variables
 dotenv.config();

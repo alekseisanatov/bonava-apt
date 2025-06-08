@@ -157,9 +157,8 @@ class Database {
 
       const stmt = this.db.prepare(`
         INSERT INTO apartments (
-          price, sqMeters, plan, projectName, roomsCount, 
-          imageUrl, floor, link, status, tag, projectLink
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          title, location, price, area, rooms, floor, url
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `);
 
       let savedCount = 0;
@@ -168,17 +167,13 @@ class Database {
       apartments.forEach(apartment => {
         try {
           stmt.run(
+            apartment.title,
+            apartment.location,
             apartment.price,
-            apartment.sqMeters,
-            apartment.plan,
-            apartment.projectName,
-            apartment.roomsCount,
-            apartment.imageUrl,
+            apartment.area,
+            apartment.rooms,
             apartment.floor,
-            apartment.link,
-            apartment.status,
-            apartment.tag,
-            apartment.projectLink,
+            apartment.url,
             (err) => {
               if (err) {
                 console.error('Error saving apartment:', err);
@@ -211,7 +206,7 @@ class Database {
   getApartmentsByRooms(roomsCount) {
     return new Promise((resolve, reject) => {
       this.db.all(
-        'SELECT * FROM apartments WHERE roomsCount = ? ORDER BY createdAt DESC',
+        'SELECT * FROM apartments WHERE rooms = ? ORDER BY created_at DESC',
         [roomsCount],
         (err, rows) => {
           if (err) {
@@ -225,10 +220,18 @@ class Database {
       );
     });
   }
+
+  run(sql, params = []) {
+    return new Promise((resolve, reject) => {
+      this.db.run(sql, params, function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(this);
+        }
+      });
+    });
+  }
 }
 
-module.exports = {
-  initDatabase,
-  saveApartments,
-  getApartmentsByRooms
-}; 
+module.exports = Database; 
