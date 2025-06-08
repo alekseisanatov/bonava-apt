@@ -43,9 +43,7 @@ bot.on('polling_error', (error) => {
 
 // Set up webhook
 console.log('Setting up webhook...');
-// Remove .loca.lt from the URL if present
-const baseUrl = process.env.WEBHOOK_URL.replace('.loca.lt', '');
-const webhookUrl = `${baseUrl}/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+const webhookUrl = `${process.env.WEBHOOK_URL}/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 console.log('Webhook URL:', webhookUrl);
 
 // Set webhook with basic configuration
@@ -69,6 +67,11 @@ bot.on('message', (msg) => {
 // Add error handler for webhook
 bot.on('webhook_error', (error) => {
   console.error('Webhook error:', error);
+});
+
+// Add error handler for polling
+bot.on('polling_error', (error) => {
+  console.error('Polling error:', error);
 });
 
 // Initialize database

@@ -3,9 +3,13 @@ services:
     name: telegram-bot
     env: node
     buildCommand: npm install
-    startCommand: node src/index.js
+    startCommand: npm start
     envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
       - key: NODE_ENV
         value: production
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: WEBHOOK_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false

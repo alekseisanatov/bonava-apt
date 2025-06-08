@@ -1,7 +1,7 @@
 {
   "name": "telegram-bot",
   "version": "1.0.0",
-  "description": "Telegram bot for apartment monitoring",
+  "description": "Telegram bot for managing tasks and reminders",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
