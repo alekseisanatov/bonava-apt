@@ -94,7 +94,7 @@ bot.onText(/\/start/, async (msg) => {
 
   try {
     console.log('Sending initial message...');
-    await bot.sendMessage(chatId, 'Starting sync and loading apartments...');
+    await bot.sendMessage(chatId, 'Начинаю синхронизацию и загрузку квартир...');
 
     console.log('Starting sync...');
     await performSync();
@@ -103,17 +103,17 @@ bot.onText(/\/start/, async (msg) => {
     // Show room selection buttons
     const keyboard = {
       inline_keyboard: [
-        [{ text: '2 Rooms', callback_data: 'rooms_2' }],
-        [{ text: '3 Rooms', callback_data: 'rooms_3' }],
-        [{ text: '4 Rooms', callback_data: 'rooms_4' }]
+        [{ text: '2 Комнаты', callback_data: 'rooms_2' }],
+        [{ text: '3 Комнаты', callback_data: 'rooms_3' }],
+        [{ text: '4 Комнаты', callback_data: 'rooms_4' }]
       ]
     };
 
-    await bot.sendMessage(chatId, 'Please select number of rooms:', { reply_markup: keyboard });
+    await bot.sendMessage(chatId, 'Пожалуйста, выберите количество комнат:', { reply_markup: keyboard });
     console.log('Room selection buttons sent successfully');
   } catch (error) {
     console.error('Error in /start command:', error);
-    await bot.sendMessage(chatId, 'Sorry, something went wrong. Please try again later.');
+    await bot.sendMessage(chatId, 'Извините, что-то пошло не так. Пожалуйста, попробуйте позже.');
   }
 });
 
@@ -126,13 +126,13 @@ bot.on('callback_query', async (callbackQuery) => {
     // Show room selection buttons
     const keyboard = {
       inline_keyboard: [
-        [{ text: '2 Rooms', callback_data: 'rooms_2' }],
-        [{ text: '3 Rooms', callback_data: 'rooms_3' }],
-        [{ text: '4 Rooms', callback_data: 'rooms_4' }]
+        [{ text: '2 Комнаты', callback_data: 'rooms_2' }],
+        [{ text: '3 Комнаты', callback_data: 'rooms_3' }],
+        [{ text: '4 Комнаты', callback_data: 'rooms_4' }]
       ]
     };
 
-    await bot.editMessageText('Please select number of rooms:', {
+    await bot.editMessageText('Пожалуйста, выберите количество комнат:', {
       chat_id: chatId,
       message_id: callbackQuery.message.message_id,
       reply_markup: keyboard
@@ -147,16 +147,16 @@ bot.on('callback_query', async (callbackQuery) => {
     // Create project selection keyboard
     const keyboard = {
       inline_keyboard: [
-        [{ text: 'All Projects', callback_data: `project_all_${roomsCount}` }],
+        [{ text: 'Все проекты', callback_data: `project_all_${roomsCount}` }],
         ...projects.map(project => [{
           text: project,
           callback_data: `project_${project}_${roomsCount}`
         }]),
-        [{ text: '« Back to Rooms', callback_data: 'back_to_rooms' }]
+        [{ text: '« Назад к комнатам', callback_data: 'back_to_rooms' }]
       ]
     };
 
-    await bot.editMessageText('Select project:', {
+    await bot.editMessageText('Выберите проект:', {
       chat_id: chatId,
       message_id: callbackQuery.message.message_id,
       reply_markup: keyboard
@@ -169,18 +169,18 @@ bot.on('callback_query', async (callbackQuery) => {
     const keyboard = {
       inline_keyboard: [
         [
-          { text: 'Price ↑', callback_data: `sort_price_asc_${project}_${roomsCount}` },
-          { text: 'Price ↓', callback_data: `sort_price_desc_${project}_${roomsCount}` }
+          { text: 'Цена ↑', callback_data: `sort_price_asc_${project}_${roomsCount}` },
+          { text: 'Цена ↓', callback_data: `sort_price_desc_${project}_${roomsCount}` }
         ],
         [
-          { text: 'Size ↑', callback_data: `sort_sqMeters_asc_${project}_${roomsCount}` },
-          { text: 'Size ↓', callback_data: `sort_sqMeters_desc_${project}_${roomsCount}` }
+          { text: 'Площадь ↑', callback_data: `sort_sqMeters_asc_${project}_${roomsCount}` },
+          { text: 'Площадь ↓', callback_data: `sort_sqMeters_desc_${project}_${roomsCount}` }
         ],
-        [{ text: '« Back to Projects', callback_data: `rooms_${roomsCount}` }]
+        [{ text: '« Назад к проектам', callback_data: `rooms_${roomsCount}` }]
       ]
     };
 
-    await bot.editMessageText('Select sorting:', {
+    await bot.editMessageText('Выберите сортировку:', {
       chat_id: chatId,
       message_id: callbackQuery.message.message_id,
       reply_markup: keyboard
@@ -188,8 +188,6 @@ bot.on('callback_query', async (callbackQuery) => {
   }
   else if (data.startsWith('sort_')) {
     const [_, field, order, project, roomsCount] = data.split('_');
-
-    console.log(roomsCount, 'roomsCount');
 
     // Get filtered apartments
     const filters = {
@@ -202,7 +200,7 @@ bot.on('callback_query', async (callbackQuery) => {
     const apartments = await getFilteredApartments(filters);
 
     if (apartments.length === 0) {
-      await bot.sendMessage(chatId, 'No apartments found with these filters.');
+      await bot.sendMessage(chatId, 'Квартиры с такими параметрами не найдены.');
       return;
     }
 
@@ -211,32 +209,49 @@ bot.on('callback_query', async (callbackQuery) => {
       const message = `
 🏠 ${apt.plan}
 💰 ${apt.price}€
-📐 ${apt.sqMeters}m²
-🏢 Floor: ${apt.floor}
-🏗 Project: ${apt.projectName}
+📐 ${apt.sqMeters}м²
+🏢 Этаж: ${apt.floor}
+🏗 Проект: ${apt.projectName}
 🔗 ${apt.link}
       `;
 
-      await bot.sendMessage(chatId, message, {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      });
+      try {
+        if (apt.imageUrl) {
+          await bot.sendPhoto(chatId, apt.imageUrl, {
+            caption: message,
+            parse_mode: 'HTML',
+            disable_web_page_preview: true
+          });
+        } else {
+          await bot.sendMessage(chatId, message, {
+            parse_mode: 'HTML',
+            disable_web_page_preview: true
+          });
+        }
+      } catch (error) {
+        console.error('Error sending apartment message:', error);
+        // If photo sending fails, fall back to text message
+        await bot.sendMessage(chatId, message, {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true
+        });
+      }
     }
 
     // Show filter options again
     const keyboard = {
       inline_keyboard: [
         [
-          { text: 'Change Room Count', callback_data: 'back_to_rooms' },
-          { text: 'Change Project', callback_data: `rooms_${roomsCount}` }
+          { text: 'Изменить количество комнат', callback_data: 'back_to_rooms' },
+          { text: 'Изменить проект', callback_data: `rooms_${roomsCount}` }
         ],
         [
-          { text: 'Change Sorting', callback_data: `project_${project}_${roomsCount}` }
+          { text: 'Изменить сортировку', callback_data: `project_${project}_${roomsCount}` }
         ]
       ]
     };
 
-    await bot.sendMessage(chatId, 'What would you like to do?', { reply_markup: keyboard });
+    await bot.sendMessage(chatId, 'Что бы вы хотели сделать?', { reply_markup: keyboard });
   }
 });
 
