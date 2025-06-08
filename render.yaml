@@ -3,7 +3,10 @@ services:
     name: telegram-bot
     env: node
     buildCommand: npm install
-    startCommand: npx puppeteer install --path ./.cache/puppeteer && npm start
+    startCommand: |
+      npm ci
+      npx puppeteer browsers install chrome
+      npm start
     envVars:
       - key: NODE_ENV
         value: production
