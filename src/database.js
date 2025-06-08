@@ -133,6 +133,7 @@ class Database {
           rooms TEXT,
           floor TEXT,
           url TEXT UNIQUE,
+          projectName TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `, (err) => {
@@ -157,8 +158,8 @@ class Database {
 
       const stmt = this.db.prepare(`
         INSERT INTO apartments (
-          title, location, price, area, rooms, floor, url
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          title, location, price, area, rooms, floor, url, projectName
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       let savedCount = 0;
@@ -174,6 +175,7 @@ class Database {
             apartment.rooms,
             apartment.floor,
             apartment.url,
+            apartment.projectName,
             (err) => {
               if (err) {
                 console.error('Error saving apartment:', err);
