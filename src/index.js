@@ -25,20 +25,11 @@ const db = new sqlite3.Database(path.join(__dirname, '../apartments.db'));
 const app = express();
 const port = process.env.PORT || 8080;
 
-// Initialize Telegram bot with polling
+// Initialize bot with webhook mode
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
-  polling: {
-    interval: 300,
-    autoStart: true,
-    params: {
-      timeout: 10
-    }
+  webHook: {
+    port: process.env.PORT || 8080
   }
-});
-
-// Log when bot is ready
-bot.on('polling_error', (error) => {
-  console.error('Polling error:', error);
 });
 
 // Set up webhook
@@ -67,11 +58,6 @@ bot.on('message', (msg) => {
 // Add error handler for webhook
 bot.on('webhook_error', (error) => {
   console.error('Webhook error:', error);
-});
-
-// Add error handler for polling
-bot.on('polling_error', (error) => {
-  console.error('Polling error:', error);
 });
 
 // Initialize database
