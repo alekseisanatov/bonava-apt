@@ -189,6 +189,8 @@ bot.on('callback_query', async (callbackQuery) => {
   else if (data.startsWith('sort_')) {
     const [_, field, order, project, roomsCount] = data.split('_');
 
+    console.log(roomsCount, 'roomsCount');
+
     // Get filtered apartments
     const filters = {
       roomsCount: parseInt(roomsCount),
@@ -337,7 +339,7 @@ async function getFilteredApartments(filters) {
     const params = [];
 
     if (filters.roomsCount) {
-      query += ' AND roomsCount = ?';
+      query += ' AND rooms = ?';
       params.push(filters.roomsCount);
     }
 
