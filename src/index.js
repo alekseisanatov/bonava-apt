@@ -6,6 +6,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const { scrapeBonavaApartments } = require('./scraper');
 const { initDatabase, saveApartments, getApartmentsByRooms } = require('./database');
+const { Database } = require('sqlite3');
 
 // Load environment variables
 dotenv.config();
@@ -56,12 +57,13 @@ bot.on('webhook_error', (error) => {
 
 // Initialize database
 console.log('Initializing database...');
-const db = new sqlite3.Database(path.join(__dirname, '../apartments.db'), (err) => {
-  if (err) {
-    console.error('Error connecting to database:', err);
-  } else {
-    console.log('Connected to local SQLite database');
-  }
+const db = new Database(path.join(__dirname, '../apartments.db'));
+
+// Initialize database table
+db.initialize().then(() => {
+  console.log('Database initialized successfully');
+}).catch(error => {
+  console.error('Error initializing database:', error);
 });
 
 // Command handlers with more logging

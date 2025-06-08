@@ -116,6 +116,117 @@ function getApartmentsByRooms(roomsCount) {
   });
 }
 
+class Database {
+  constructor(dbPath) {
+    this.db = new sqlite3.Database(dbPath);
+  }
+
+  async initialize() {
+    return new Promise((resolve, reject) => {
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS apartments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT,
+          location TEXT,
+          price TEXT,
+          area TEXT,
+          rooms TEXT,
+          floor TEXT,
+          url TEXT UNIQUE,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `, (err) => {
+        if (err) {
+          console.error('Error creating apartments table:', err);
+          reject(err);
+        } else {
+          console.log('Apartments table initialized');
+          resolve();
+        }
+      });
+    });
+  }
+
+  async saveApartments(apartments) {
+    try {
+      // First ensure table exists
+      await this.initialize();
+
+      // Clear existing data
+      await this.run('DELETE FROM apartments');
+
+      const stmt = this.db.prepare(`
+        INSERT INTO apartments (
+          price, sqMeters, plan, projectName, roomsCount, 
+          imageUrl, floor, link, status, tag, projectLink
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      let savedCount = 0;
+      let errorCount = 0;
+
+      apartments.forEach(apartment => {
+        try {
+          stmt.run(
+            apartment.price,
+            apartment.sqMeters,
+            apartment.plan,
+            apartment.projectName,
+            apartment.roomsCount,
+            apartment.imageUrl,
+            apartment.floor,
+            apartment.link,
+            apartment.status,
+            apartment.tag,
+            apartment.projectLink,
+            (err) => {
+              if (err) {
+                console.error('Error saving apartment:', err);
+                errorCount++;
+              } else {
+                savedCount++;
+              }
+            }
+          );
+        } catch (error) {
+          console.error('Error preparing apartment data:', error);
+          errorCount++;
+        }
+      });
+
+      stmt.finalize((err) => {
+        if (err) {
+          console.error('Error finalizing statement:', err);
+          reject(err);
+        } else {
+          console.log(`Successfully saved ${savedCount} apartments, ${errorCount} errors`);
+          resolve();
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  }
+
+  getApartmentsByRooms(roomsCount) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM apartments WHERE roomsCount = ? ORDER BY createdAt DESC',
+        [roomsCount],
+        (err, rows) => {
+          if (err) {
+            console.error('Error getting apartments by rooms:', err);
+            reject(err);
+          } else {
+            console.log(`Found ${rows.length} apartments with ${roomsCount} rooms`);
+            resolve(rows);
+          }
+        }
+      );
+    });
+  }
+}
+
 module.exports = {
   initDatabase,
   saveApartments,
