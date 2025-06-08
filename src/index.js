@@ -339,7 +339,7 @@ async function getFilteredApartments(filters) {
     const params = [];
 
     if (filters.roomsCount) {
-      query += ' AND rooms = ?';
+      query += ' AND roomsCount = ?';
       params.push(filters.roomsCount);
     }
 
