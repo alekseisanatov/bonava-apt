@@ -46,43 +46,33 @@ function saveApartments(apartments) {
       }
       console.log('Cleared existing data');
 
-      const stmt = db.prepare(`
+      let savedCount = 0;
+      let errorCount = 0;
+
+      const stmt = this.db.prepare(`
         INSERT INTO apartments (
-          price, sqMeters, plan, projectName, roomsCount, 
+          price, sqMeters, plan, projectName, roomsCount,
           imageUrl, floor, link, status, tag, projectLink
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
-      let savedCount = 0;
-      let errorCount = 0;
-
       apartments.forEach(apartment => {
-        try {
-          stmt.run(
-            apartment.price,
-            apartment.sqMeters,
-            apartment.plan,
-            apartment.projectName,
-            apartment.roomsCount,
-            apartment.imageUrl,
-            apartment.floor,
-            apartment.link,
-            apartment.status,
-            apartment.tag,
-            apartment.projectLink,
-            (err) => {
-              if (err) {
-                console.error('Error saving apartment:', err);
-                errorCount++;
-              } else {
-                savedCount++;
-              }
-            }
-          );
-        } catch (error) {
-          console.error('Error preparing apartment data:', error);
-          errorCount++;
-        }
+        stmt.run(
+          apartment.price,
+          apartment.sqMeters,
+          apartment.plan,
+          apartment.projectName,
+          apartment.roomsCount,
+          apartment.imageUrl,
+          apartment.floor,
+          apartment.link,
+          apartment.status,
+          apartment.tag,
+          apartment.projectLink,
+          (err) => {
+            if (err) console.error('Error saving apartment:', err);
+          }
+        );
       });
 
       stmt.finalize((err) => {
@@ -126,15 +116,18 @@ class Database {
       this.db.run(`
         CREATE TABLE IF NOT EXISTS apartments (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT,
-          location TEXT,
-          price TEXT,
-          area TEXT,
-          rooms TEXT,
-          floor TEXT,
-          url TEXT UNIQUE,
+          price REAL,
+          sqMeters REAL,
+          plan TEXT,
           projectName TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          roomsCount INTEGER,
+          imageUrl TEXT,
+          floor INTEGER,
+          link TEXT UNIQUE,
+          status TEXT,
+          tag TEXT,
+          projectLink TEXT,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `, (err) => {
         if (err) {
