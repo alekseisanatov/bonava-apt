@@ -142,7 +142,7 @@ bot.on('callback_query', async (callbackQuery) => {
     const roomsCount = parseInt(data.split('_')[1]);
 
     // Get unique projects for this room count
-    const projects = await getUniqueProjects();
+    const projects = await getProjects();
 
     // Create project selection keyboard
     const keyboard = {
@@ -286,7 +286,7 @@ async function performSync() {
         console.log('Apartments saved to database');
 
         // Verify the save by checking the database
-        db.all('SELECT COUNT(*) as count FROM apartments', (err, rows) => {
+        db.db.all('SELECT COUNT(*) as count FROM apartments', (err, rows) => {
           if (err) {
             console.error('Error checking database:', err);
           } else {
@@ -310,14 +310,16 @@ cron.schedule('*/5 * * * *', () => {
   performSync();
 });
 
-// Helper function to get unique projects
-async function getUniqueProjects() {
+// Add getProjects function
+async function getProjects() {
   return new Promise((resolve, reject) => {
-    db.all('SELECT DISTINCT projectName FROM apartments ORDER BY projectName', (err, rows) => {
+    db.db.all('SELECT DISTINCT projectName FROM apartments ORDER BY projectName', (err, rows) => {
       if (err) {
+        console.error('Error getting projects:', err);
         reject(err);
       } else {
-        resolve(rows.map(row => row.projectName));
+        console.log('Found projects:', rows.map(r => r.projectName));
+        resolve(rows.map(r => r.projectName));
       }
     });
   });
@@ -346,7 +348,7 @@ async function getFilteredApartments(filters) {
       query += ' ORDER BY createdAt DESC';
     }
 
-    db.all(query, params, (err, rows) => {
+    db.db.all(query, params, (err, rows) => {
       if (err) {
         reject(err);
       } else {
