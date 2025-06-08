@@ -18,14 +18,8 @@ if (!process.env.TELEGRAM_BOT_TOKEN) {
 
 console.log('Initializing bot with token:', process.env.TELEGRAM_BOT_TOKEN.substring(0, 5) + '...');
 
-// Initialize database connection
-const db = new sqlite3.Database(path.join(__dirname, '../apartments.db'));
-
-// Initialize Express app
-const app = express();
-const port = process.env.PORT || 8080;
-
 // Initialize bot with webhook mode
+const port = process.env.PORT || 8080;
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
   webHook: {
     port: port
@@ -61,105 +55,8 @@ bot.on('webhook_error', (error) => {
 });
 
 // Initialize database
-initDatabase().then(() => {
-  console.log('Database initialized successfully');
-}).catch(error => {
-  console.error('Error initializing database:', error);
-});
-
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.send('Bot is running!');
-});
-
-// Start Express server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-// Function to perform sync
-async function performSync() {
-  try {
-    console.log('Starting sync...');
-    const apartments = await scrapeBonavaApartments();
-    console.log(`Found ${apartments.length} apartments`);
-
-    if (apartments.length > 0) {
-      console.log('Sample apartment data:', JSON.stringify(apartments[0], null, 2));
-      try {
-        await saveApartments(apartments);
-        console.log('Apartments saved to database');
-
-        // Verify the save by checking the database
-        db.all('SELECT COUNT(*) as count FROM apartments', (err, rows) => {
-          if (err) {
-            console.error('Error checking database:', err);
-          } else {
-            console.log('Current apartment count in database:', rows[0].count);
-          }
-        });
-      } catch (saveError) {
-        console.error('Error saving apartments:', saveError);
-      }
-    } else {
-      console.log('No apartments found to save');
-    }
-  } catch (error) {
-    console.error('Error in sync:', error);
-  }
-}
-
-// Schedule sync every 5 minutes
-cron.schedule('*/5 * * * *', () => {
-  console.log('Running scheduled sync...');
-  performSync();
-});
-
-// Helper function to get unique projects
-async function getUniqueProjects() {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT DISTINCT projectName FROM apartments ORDER BY projectName', (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows.map(row => row.projectName));
-      }
-    });
-  });
-}
-
-// Helper function to get apartments with filters
-async function getFilteredApartments(filters) {
-  return new Promise((resolve, reject) => {
-    let query = 'SELECT * FROM apartments WHERE 1=1';
-    const params = [];
-
-    if (filters.roomsCount) {
-      query += ' AND roomsCount = ?';
-      params.push(filters.roomsCount);
-    }
-
-    if (filters.projectName && filters.projectName !== 'All') {
-      query += ' AND projectName = ?';
-      params.push(filters.projectName);
-    }
-
-    // Add sorting
-    if (filters.sortBy) {
-      query += ` ORDER BY ${filters.sortBy} ${filters.sortOrder || 'ASC'}`;
-    } else {
-      query += ' ORDER BY createdAt DESC';
-    }
-
-    db.all(query, params, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows);
-      }
-    });
-  });
-}
+console.log('Initializing database...');
+const db = new sqlite3.Database(path.join(__dirname, '../apartments.db'));
 
 // Command handlers with more logging
 bot.onText(/\/test/, (msg) => {
@@ -340,4 +237,91 @@ bot.onText(/\/sync/, async (msg) => {
   bot.sendMessage(chatId, 'Starting manual sync...');
   await performSync();
   bot.sendMessage(chatId, 'Sync completed!');
-}); 
+});
+
+// Function to perform sync
+async function performSync() {
+  try {
+    console.log('Starting sync...');
+    const apartments = await scrapeBonavaApartments();
+    console.log(`Found ${apartments.length} apartments`);
+
+    if (apartments.length > 0) {
+      console.log('Sample apartment data:', JSON.stringify(apartments[0], null, 2));
+      try {
+        await saveApartments(apartments);
+        console.log('Apartments saved to database');
+
+        // Verify the save by checking the database
+        db.all('SELECT COUNT(*) as count FROM apartments', (err, rows) => {
+          if (err) {
+            console.error('Error checking database:', err);
+          } else {
+            console.log('Current apartment count in database:', rows[0].count);
+          }
+        });
+      } catch (saveError) {
+        console.error('Error saving apartments:', saveError);
+      }
+    } else {
+      console.log('No apartments found to save');
+    }
+  } catch (error) {
+    console.error('Error in sync:', error);
+  }
+}
+
+// Schedule sync every 5 minutes
+cron.schedule('*/5 * * * *', () => {
+  console.log('Running scheduled sync...');
+  performSync();
+});
+
+// Helper function to get unique projects
+async function getUniqueProjects() {
+  return new Promise((resolve, reject) => {
+    db.all('SELECT DISTINCT projectName FROM apartments ORDER BY projectName', (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows.map(row => row.projectName));
+      }
+    });
+  });
+}
+
+// Helper function to get apartments with filters
+async function getFilteredApartments(filters) {
+  return new Promise((resolve, reject) => {
+    let query = 'SELECT * FROM apartments WHERE 1=1';
+    const params = [];
+
+    if (filters.roomsCount) {
+      query += ' AND roomsCount = ?';
+      params.push(filters.roomsCount);
+    }
+
+    if (filters.projectName && filters.projectName !== 'All') {
+      query += ' AND projectName = ?';
+      params.push(filters.projectName);
+    }
+
+    // Add sorting
+    if (filters.sortBy) {
+      query += ` ORDER BY ${filters.sortBy} ${filters.sortOrder || 'ASC'}`;
+    } else {
+      query += ' ORDER BY createdAt DESC';
+    }
+
+    db.all(query, params, (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+}
+
+// Log server start
+console.log(`Server is running on port ${port}`); 
