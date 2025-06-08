@@ -56,7 +56,13 @@ bot.on('webhook_error', (error) => {
 
 // Initialize database
 console.log('Initializing database...');
-const db = new sqlite3.Database(path.join(__dirname, '../apartments.db'));
+const db = new sqlite3.Database(path.join(__dirname, '../apartments.db'), (err) => {
+  if (err) {
+    console.error('Error connecting to database:', err);
+  } else {
+    console.log('Connected to local SQLite database');
+  }
+});
 
 // Command handlers with more logging
 bot.onText(/\/test/, (msg) => {
